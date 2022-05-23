@@ -1,21 +1,13 @@
-name: CI
+name: Say hello
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  hello_world:
+    runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v1
-    - name: Login to Heroku Container registry
-      env:
-        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: heroku container:login
-    - name: Build and Push
-      env:
-        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web
-    - name: Release
-      env:
-        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: heroku container:release -a ${{ secrets.HEROKU_APP_NAME }} web
+      - name: Echo the message
+        run: echo "Hello World!"
