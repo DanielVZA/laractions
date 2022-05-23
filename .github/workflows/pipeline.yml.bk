@@ -33,13 +33,17 @@ jobs:
 
   deploy:
     needs: [tests]
-    if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Login to Heroku container
-        env:
-          HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-        run: heroku container:login
+      - name: Deploy to Heroku
+        if: ${{ github.event_name == 'push' }}
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_API_EMAIL }}
+          healthcheck: "https://laractions.herokuapp.com/"
+          rollbackonhealthcheckfailed: true
