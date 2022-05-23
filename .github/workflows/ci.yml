@@ -10,4 +10,8 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Echo the message
-        run: echo "Hello World!"
+        run: |
+          echo "Hello World!"
+      - name: Dime la fecha
+        run: date
+      - run: ls -l
