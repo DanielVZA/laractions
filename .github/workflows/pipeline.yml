@@ -2,11 +2,21 @@ name: Deployment pipeline
 
 on:
   push:
-   branches:
-     - master
+    branches: [master]
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize]
 
 jobs:
-  deploy:
+  avoid_redundancy:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+
+  tests:
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
@@ -20,7 +30,16 @@ jobs:
         run: php artisan key:generate
       - name: Run tests
         run: php artisan test
+
+  deploy:
+    needs: [tests]
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - name: Deploy to Heroku
+        if: ${{ github.event_name == 'push' }}
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
@@ -28,4 +47,3 @@ jobs:
           heroku_email: ${{ secrets.HEROKU_API_EMAIL }}
           healthcheck: "https://laractions.herokuapp.com/health"
           rollbackonhealthcheckfailed: true
-      - run: php artisan key:generate
